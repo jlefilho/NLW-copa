@@ -3,8 +3,16 @@ import appPreviewImg from '../assets/app-nlw-copa-preview.png'
 import logoImg from '../assets/logo.svg'
 import usersAvatarExampleImage from '../assets/users-avatar-example.png'
 import iconCheckImg from '../assets/icon-check.svg'
+import { api } from '../lib/axios/axios'
 
-export default function Home() {
+
+interface HomeProps {
+  poolCount: number
+  betsCount: number
+  usersCount: number
+}
+
+export default function Home({ poolCount, betsCount, usersCount }: HomeProps) {
   return (
     <div className='max-w-[1124px] h-screen mx-auto gap-28 grid grid-cols-2 items-center'>
       <main>
@@ -17,7 +25,7 @@ export default function Home() {
         <div className='mt-10 flex items-center gap-2'>
           <Image src={usersAvatarExampleImage} alt="" />
           <strong className='text-gray-100'>
-            <span className='text-ignite-500 text-xl'>+12.582</span> pessoas já estão usando
+            <span className='text-ignite-500 text-xl'>+{usersCount}</span> pessoas já estão usando
           </strong>
         </div>
 
@@ -46,7 +54,7 @@ export default function Home() {
           <div className='flex items-center gap-6'>
             <Image src={iconCheckImg} alt="" />
             <div className='flex flex-col'>
-              <span className='font-bold text-2xl'>+2.034</span>
+              <span className='font-bold text-2xl'>+{poolCount}</span>
               <span>Bolões criados</span>
             </div>
           </div>
@@ -56,8 +64,8 @@ export default function Home() {
           <div className='flex items-center gap-6'>
             <Image src={iconCheckImg} alt="" />
             <div className='flex flex-col'>
-                <span className='font-bold text-2xl'>+2.034</span>
-                <span>Bolões criados</span>
+                <span className='font-bold text-2xl'>+{betsCount}</span>
+                <span>Palpites enviados</span>
               </div>
           </div>
         </div>
@@ -66,4 +74,24 @@ export default function Home() {
       <Image src={appPreviewImg} alt="" quality={100} />
     </div>
   )
+}
+
+export const getServerSideProps = async () => {
+  const [
+    poolCountResponse,
+    betsCountResponse,
+    usersCountResponse
+  ] = await Promise.all([
+    api.get('pools/count'),
+    api.get('bets/count'),
+    api.get('users/count'),
+  ])
+
+  return {
+    props: {
+      poolCount: poolCountResponse.data.count,
+      betsCount: betsCountResponse.data.count,
+      usersCount:usersCountResponse.data.count
+    }
+  }
 }
