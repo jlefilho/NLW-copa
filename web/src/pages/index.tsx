@@ -1,10 +1,11 @@
+import { FormEvent, useState } from 'react'
 import Image from 'next/image'
+import { api } from '../lib/axios/axios'
+
 import appPreviewImg from '../assets/app-nlw-copa-preview.png'
 import logoImg from '../assets/logo.svg'
 import usersAvatarExampleImage from '../assets/users-avatar-example.png'
 import iconCheckImg from '../assets/icon-check.svg'
-import { api } from '../lib/axios/axios'
-
 
 interface HomeProps {
   poolCount: number
@@ -13,6 +14,29 @@ interface HomeProps {
 }
 
 export default function Home({ poolCount, betsCount, usersCount }: HomeProps) {
+  const [poolTitle, setPoolTitle] = useState('')
+
+  async function handleCreatePool(event: FormEvent) {
+    event.preventDefault()
+    
+    try {
+      const response = await api.post('/pools', {
+        title: poolTitle,
+      })
+
+      const { code } = await response.data
+
+      await navigator.clipboard.writeText(code)
+
+      alert('Bolão criado com sucesso! O código foi copiado para a área de transferência.')
+
+      setPoolTitle('')
+    } catch (err){
+      alert('Falha ao criar o bolão. Tente novamente.')
+    }
+
+  }
+
   return (
     <div className='max-w-[1124px] h-screen mx-auto gap-28 grid grid-cols-2 items-center'>
       <main>
@@ -29,9 +53,12 @@ export default function Home({ poolCount, betsCount, usersCount }: HomeProps) {
           </strong>
         </div>
 
-        <form className='mt-10 flex gap-4'>
+        <form onSubmit={handleCreatePool} className='mt-10 flex gap-4'>
           <input
-            className='flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm'
+            className='flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm text-gray-100'
+            onChange={event => setPoolTitle(event.target.value)}
+            value={poolTitle}
+
             type="text"
             placeholder='Qual o nome do seu bolão?'
             required
