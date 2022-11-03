@@ -18,6 +18,18 @@ async function start() {
         origin: true
     })
 
+    fastify.get('/users/count', async () => {
+        const count = await prisma.user.count()
+
+        return { count }
+    })
+
+    fastify.get('/bets/count', async () => {
+        const count = await prisma.bet.count()
+
+        return { count }
+    })
+
     fastify.get('/pools/count', async () => {
         const count = await prisma.pool.count()
 
