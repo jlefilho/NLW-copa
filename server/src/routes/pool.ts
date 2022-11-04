@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify"
 import ShortUniqueId from "short-unique-id"
 import { z } from "zod"
 import { prisma } from "../../lib/prisma"
+import { authenticate } from "../plugins/authenticate"
 
 export async function poolRoutes(fastify: FastifyInstance) {
     fastify.get('/pools/count', async () => {
@@ -10,6 +11,7 @@ export async function poolRoutes(fastify: FastifyInstance) {
         return { count }
     })
 
+    //CREATE POOL
     fastify.post('/pools', async (request, reply) => {
         const createPoolBody = z.object({
             title: z.string()
@@ -47,5 +49,61 @@ export async function poolRoutes(fastify: FastifyInstance) {
 
 
         return reply.status(201).send({ code })
+    })
+
+    //JOIN POOL
+    fastify.post('/pools/:id/join', {
+        onRequest: [authenticate]
+    },async (request, reply) => {
+        const joinPoolBody = z.object({
+            code: z.string()
+        })
+
+        const { code } = joinPoolBody.parse(request.body)
+
+        const pool = await prisma.pool.findUnique({
+            where: {
+                code
+            },
+            include: {
+                players: {
+                    where: {
+                        userId: request.user.sub
+                    }
+                }
+            }
+        })
+
+        if (!pool) {
+            return reply.status(400).send({
+                message: 'Pool not found.'
+            })
+        }
+
+        if (pool.players.length > 0) {
+            return reply.status(400).send({
+                message: 'You already joined this pool.'
+            })
+        }
+
+        if (!pool.ownerId) {
+            await prisma.pool.update({
+                where: {
+                  id: pool.id                  
+                },
+                data: {
+                    ownerId: request.user.sub
+                }
+            })
+        }
+
+        await prisma.player.create({
+            data: {
+                poolId: pool.id,
+                userId: request.user.sub
+            }
+        })
+
+        return reply.status(201).send()
     })
 }
