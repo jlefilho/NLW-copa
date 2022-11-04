@@ -5,6 +5,7 @@ import { prisma } from "../../lib/prisma"
 import { authenticate } from "../plugins/authenticate"
 
 export async function poolRoutes(fastify: FastifyInstance) {
+    //POOLS COUNT
     fastify.get('/pools/count', async () => {
         const count = await prisma.pool.count()
 
@@ -105,5 +106,47 @@ export async function poolRoutes(fastify: FastifyInstance) {
         })
 
         return reply.status(201).send()
+    })
+
+    //LIST JOINED POOLS
+    fastify.get('/pools', {
+        onRequest: [authenticate]
+    }, async (request) => {
+        const pools = await prisma.pool.findMany({
+            where: {
+                players: {
+                    some: {
+                        userId: request.user.sub
+                    }
+                }
+            },
+            include: {
+                _count: {
+                    select: {
+                        players: true
+                    }
+                },
+                owner: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                players: {
+                    select: {
+                        id: true,
+
+                        user: {
+                            select: {
+                                avatarUrl: true,
+                            }
+                        }
+                    },
+                    take: 4
+                }
+            }
+        })
+
+        return { pools }
     })
 }
