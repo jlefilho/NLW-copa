@@ -1,13 +1,11 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
-import { PrismaClient } from '@prisma/client'
-import { z } from 'zod'
-import ShortUniqueId from 'short-unique-id'
 
-
-const prisma = new PrismaClient({
-    log: ['query']
-})
+import { poolRoutes } from './routes/pool'
+import { userRoutes } from './routes/user'
+import { matchRoutes } from './routes/match'
+import { betRoutes } from './routes/bet'
+import { authRoutes } from './routes/auth'
 
 async function start() {
     const fastify = Fastify({
@@ -18,43 +16,11 @@ async function start() {
         origin: true
     })
 
-    fastify.get('/users/count', async () => {
-        const count = await prisma.user.count()
-
-        return { count }
-    })
-
-    fastify.get('/bets/count', async () => {
-        const count = await prisma.bet.count()
-
-        return { count }
-    })
-
-    fastify.get('/pools/count', async () => {
-        const count = await prisma.pool.count()
-
-        return { count }
-    })
-
-    fastify.post('/pools', async (request, reply) => {
-        const createPoolBody = z.object({
-            title: z.string()
-        })
-
-        const { title } = createPoolBody.parse(request.body)
-
-        const generate = new ShortUniqueId({ length: 6 })
-        const code = String(generate()).toUpperCase()
-
-        await prisma.pool.create({
-            data: {
-                title,
-                code
-            }
-        })
-
-        return reply.status(201).send({ code })
-    })
+    await fastify.register(poolRoutes)
+    await fastify.register(userRoutes)
+    await fastify.register(matchRoutes)
+    await fastify.register(betRoutes)
+    await fastify.register(authRoutes)
 
     await fastify.listen({ port:3333 })
 }
