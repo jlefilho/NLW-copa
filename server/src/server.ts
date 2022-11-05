@@ -27,7 +27,7 @@ async function start() {
     await fastify.register(betRoutes)
     await fastify.register(authRoutes)
 
-    await fastify.listen({ port:3333 })
+    await fastify.listen({ port:3333, host: '0.0.0.0' })
 }
 
 start()
