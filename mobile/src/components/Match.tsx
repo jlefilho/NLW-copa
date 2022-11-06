@@ -17,17 +17,17 @@ export interface MatchProps {
   id: string;
   firstTeamCountryCode: string;
   secondTeamCountryCode: string;
-  guess: null | BetProps;
+  bet: null | BetProps;
 };
 
 interface Props {
   data: MatchProps;
-  onGuessConfirm: () => void;
+  onBetConfirm: () => void;
   setFirstTeamPoints: (value: string) => void;
   setSecondTeamPoints: (value: string) => void;
 };
 
-export function Match({ data, setFirstTeamPoints, setSecondTeamPoints, onGuessConfirm }: Props) {
+export function Match({ data, setFirstTeamPoints, setSecondTeamPoints, onBetConfirm }: Props) {
   const { colors, sizes } = useTheme();
 
   return (
@@ -66,8 +66,8 @@ export function Match({ data, setFirstTeamPoints, setSecondTeamPoints, onGuessCo
       </HStack>
 
       {
-        !data.guess &&
-        <Button size="xs" w="full" bgColor="green.500" mt={4} onPress={onGuessConfirm}>
+        !data.bet &&
+        <Button size="xs" w="full" bgColor="green.500" mt={4} onPress={onBetConfirm}>
           <HStack alignItems="center">
             <Text color="white" fontSize="xs" fontFamily="heading" mr={3}>
               CONFIRMAR PALPITE
