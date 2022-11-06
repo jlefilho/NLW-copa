@@ -90,6 +90,7 @@ export function Bets({ poolId }: Props) {
           onBetConfirm={()=> handleBetConfirm(item.id)}
         />
       )}
+      _contentContainerStyle={{ pb: 20}}
     />
     
   );
