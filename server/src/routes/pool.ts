@@ -151,7 +151,7 @@ export async function poolRoutes(fastify: FastifyInstance) {
     })
 
     //SHOW POOL DETAILS
-    fastify.get('/pool/:id',{
+    fastify.get('/pools/:id',{
         onRequest: [authenticate]
     }, async (request) => {
         const getPoolParams = z.object({
