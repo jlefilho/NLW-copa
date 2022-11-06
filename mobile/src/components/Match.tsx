@@ -17,7 +17,7 @@ export interface MatchProps {
   id: string;
   firstTeamCountryCode: string;
   secondTeamCountryCode: string;
-  bet: null | BetProps;
+  guess: null | BetProps;
 };
 
 interface Props {
@@ -66,7 +66,7 @@ export function Match({ data, setFirstTeamPoints, setSecondTeamPoints, onBetConf
       </HStack>
 
       {
-        !data.bet &&
+        !data.guess &&
         <Button size="xs" w="full" bgColor="green.500" mt={4} onPress={onBetConfirm}>
           <HStack alignItems="center">
             <Text color="white" fontSize="xs" fontFamily="heading" mr={3}>

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Box, useToast, FlatList } from 'native-base';
+import { useToast, FlatList } from 'native-base';
 
 import { api } from '../services/api';
 import { Match, MatchProps } from './Match';
+import { Loading } from './Loading';
 
 interface Props {
   poolId: string;
@@ -35,9 +36,47 @@ export function Bets({ poolId }: Props) {
     }
   }
 
+  async function handleBetConfirm(matchId: string) {
+    try {
+      if (!firstTeamPoints.trim() || !secondTeamPoints.trim()){
+      return toast.show({
+        title: 'Informe o placar do palpite!',
+        placement: 'top',
+        bgColor: 'red.500'        
+      })
+     }
+
+     await api.post(`/pools/${poolId}/matches/${matchId}/bets`, {
+      firstTeamPoints: Number(firstTeamPoints),
+      secondTeamPoints: Number(secondTeamPoints)
+     })
+
+     toast.show({
+      title: 'Palpite relizado com sucesso!',
+      placement: 'top',
+      bgColor: 'green.500'        
+      })
+
+      fetchMatches()
+
+    } catch (err) {
+      console.log(err)
+      toast.show({
+          title: 'Não foi possível enviar o palpite!',
+          placement: 'top',
+          bgColor: 'red.500'
+      })
+    } finally {
+    }
+  }
+
   useEffect(()=> {
     fetchMatches()
   }, [poolId])
+
+  if (isMatchesLoading) {
+    return <Loading />
+  }
 
   return (   
     <FlatList
@@ -48,7 +87,7 @@ export function Bets({ poolId }: Props) {
           data={item}
           setFirstTeamPoints={setFirstTeamPoints}
           setSecondTeamPoints={setSecondTeamPoints}
-          onBetConfirm={()=> {}}
+          onBetConfirm={()=> handleBetConfirm(item.id)}
         />
       )}
     />
