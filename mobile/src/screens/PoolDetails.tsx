@@ -9,6 +9,7 @@ import { PoolCardProps } from "../components/PoolCard";
 import { PoolHeader } from "../components/PoolHeader";
 import { EmptyMyPoolList } from "../components/EmptyMyPoolList";
 import { Option } from "../components/Option";
+import { Share } from "react-native";
 
 interface RouteParams {
     id: string;
@@ -43,6 +44,12 @@ export function PoolDetails() {
         }
     }
 
+    async function handleCodeShare() {
+        await Share.share({
+            message: poolDetails.code
+        })
+    }
+
     useEffect(() => {
         fetchPoolDetails()
     }, [id])
@@ -53,7 +60,12 @@ export function PoolDetails() {
 
     return (
         <VStack flex={1} bgColor='gray.900'>
-            <Header title={id} showBackButton showShareButton />
+            <Header
+                title={poolDetails.title}
+                showBackButton
+                showShareButton
+                onShare={handleCodeShare}
+            />
 
             {
                 poolDetails._count?.players > 0 
